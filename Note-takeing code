@@ -1,0 +1,47 @@
+import os
+import tkinter as tk
+from tkinter import ttk
+
+class NoteApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("简易笔记应用")
+
+        # 创建文本框
+        self.text_box = tk.Text(self.root, wrap="word", height=20, width=50)
+        self.text_box.pack(padx=10, pady=10)
+
+        # 创建标签
+        self.label_var = tk.StringVar()
+        self.label_entry = ttk.Entry(self.root, textvariable=self.label_var)
+        self.label_entry.pack(pady=5)
+
+        # 创建按钮
+        ttk.Button(self.root, text="保存", command=self.save_note).pack(pady=5)
+        ttk.Button(self.root, text="搜索", command=self.search_note).pack(pady=5)
+
+    def save_note(self):
+        # 保存文本框中的内容到文件，使用标签作为文件名
+        label = self.label_var.get()
+        content = self.text_box.get("1.0", tk.END)
+        file_path = os.path.join(os.path.expanduser('~'), f"{label}.txt")
+        with open(file_path, "w") as file:
+            file.write(content)
+
+    def search_note(self):
+        # 根据标签搜索笔记并显示在文本框中
+        label = self.label_var.get()
+        file_path = os.path.join(os.path.expanduser('~'), f"{label}.txt")
+        try:
+            with open(file_path, "r") as file:
+                content = file.read()
+                self.text_box.delete("1.0", tk.END)
+                self.text_box.insert(tk.END, content)
+        except FileNotFoundError:
+            self.text_box.delete("1.0", tk.END)
+            self.text_box.insert(tk.END, "未找到相关笔记")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = NoteApp(root)
+    root.mainloop()
